@@ -42,9 +42,10 @@ Structured outputs are very interesting for manipulating natural language at sca
 - create a `requirements.txt` file with the following content:
 
 ```
+langchain-core
 langchain-ollama
-# for structured outputs
 ollama
+pydantic
 ```
 
 - `pip install -r requirements.txt`
@@ -162,7 +163,6 @@ print(response)
 ... this fails because `llama3.2-vision` does not support "tools", which are required for structured outputs. This means we need to write a chain to call the vision model first and then structure the output with a text model; this allows use to consider a more elaborate chain:
 
 ```python
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 from langchain_ollama import ChatOllama
