@@ -57,7 +57,22 @@ result3 = text_model_with_tools.invoke("hello")
 print(result3)
 ```
 
-...then, we are to use the messages of type `tool_calls` to call the tools:
+- to mitigate the fact that the LLM will always call tools once you bound them to it, well... you just need to give it guidelines on when to use the tools and when not to !:
+
+```python
+from langchain_core.messages import HumanMessage, SystemMessage
+sys_msg = SystemMessage(
+    content="""You are an investment analyst equipped with tools such as stock price forecasting and getting top gainers and losers in the market. 
+If using tools is not relevant to the user's question, just return a general answer without using tools."""
+)
+
+messages = [sys_msg, HumanMessage("hello")]
+
+result = text_model_with_tools.invoke(messages)
+print(result)
+```
+
+- now, let's use the messages of type `tool_calls` to call the tools:
 
 ```python
 for tool_call in result2.tool_calls:
