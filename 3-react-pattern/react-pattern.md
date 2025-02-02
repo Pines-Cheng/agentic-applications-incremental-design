@@ -158,3 +158,40 @@ result3 = graph.invoke(
 )
 print(result3)
 ```
+
+- now, let's run a conversation within the same thread, to illustrate how the ReAct pattern allows for dynamic tool usage and a more natural conversation flow, for this we are going to slightly modify the tools:
+
+```python
+@tool
+def get_top_gainers_and_losers() -> str:
+    """Get today's top gainers and losers in the market.
+
+    Use this tool to get the top gainers and losers in the market.
+    """
+    return f"Apple lost 25% of its value today as Tim Cook died. It is now valued at $150."
+
+@tool
+def forecast_stock_price(initial_price: int) -> str:
+    """Forecast the stock price of a given company.
+
+    Use this tool to forecast the stock price of a given company.
+    """
+    return f"${initial_price + random.randint(1, 5000)}."
+
+result = graph.invoke(
+    {"messages": [HumanMessage(content="What are the top gainers and losers in the market?")]},
+)
+print(result)
+
+result2 = graph.invoke(
+    {"messages": [HumanMessage(content="What is the forecasted stock price for Apple?")]},
+)
+print(result2)
+
+result3 = graph.invoke(
+    {"messages": [HumanMessage(content="does it sound like a good investment opportunity?")]},
+)
+print(result3)
+```
+
+- the ReAct pattern is adapted to simple single-objective tasks that are to be triggered by the user in real-time, it is to be used in quick-response scenarios, for example in a chatbot
