@@ -1,5 +1,16 @@
 # the ReAct pattern
 
+![ReAct pattern](./react-pattern.jpeg)
+
+From a user input, the agent:
+
+- figures out if it needs to use one of the tools at its disposal
+- if it does, it uses the tool and gets back its output
+  - the tool output is then passed to the model to answer the question
+- if it doesn't need to use a tool, it uses the model to directly answer the question
+
+---
+
 - prerequisites from `README.md`
 - `python3 -m venv venv && source venv/bin/activate`
 - create a `requirements.txt` file with the following content:
