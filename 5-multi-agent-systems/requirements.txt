@@ -1,0 +1,8 @@
+asyncio
+agentic-search
+ipykernel
+langchain-core
+langchain-experimental
+langchain-ollama
+langgraph
+matplotlib

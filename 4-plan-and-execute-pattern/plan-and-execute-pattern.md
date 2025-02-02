@@ -320,9 +320,7 @@ async def plan_step(state: PlanAndExecuteState):
 
 # we return either the final response or a new plan
 async def replan_step(state: PlanAndExecuteState):
-    print(state)
     output = await replanner.ainvoke(state)
-    print(output)
     if isinstance(output.action, Response):
         return {"response": output.action.response}
     else:
@@ -368,6 +366,7 @@ graph = workflow.compile()
 import asyncio
 
 async def main():
+    # the max number of steps to take in the graph
     config = {"recursion_limit": 50}
     inputs = {"input": "among recent top losers in the stock market, give me one that will probably go up again in the near future, don't overthink it"}
     async for event in graph.astream(inputs, config=config):
