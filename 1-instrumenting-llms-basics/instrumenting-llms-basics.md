@@ -2,6 +2,10 @@
 
 - prerequisites from `README.md`
 - `ollama run llama3.1` to get a plain text response from text input
+
+
+## unstructured text response vs structured output
+
 - call Ollama API to get a structured output from text input:
 
 ```bash
@@ -104,8 +108,10 @@ result = chain.invoke(
 print(result)
 ```
 
-- `ollama pull minicpm-v`
-- plain text response from image input
+## multimodal inputs
+
+- `ollama pull minicpm-v` (or `ollama pull llama3.2-vision`)
+- plain text response from image input =>
 
 ```python
 import base64
@@ -158,6 +164,7 @@ response = structured_model.invoke([
 ])
 
 print(response)
+# ! FAILS 😬
 ```
 
 ... this fails because `llama3.2-vision` does not support "tools", which are required for structured outputs. This means we need to write a chain to call the vision model first and then structure the output with a text model; this allows use to consider a more elaborate chain:
@@ -217,3 +224,66 @@ with open("example.png", "rb") as f:
 result = vision_then_structured_chain.invoke({"image": image_b64})
 print(result)
 ```
+
+## batching LLM calls
+
+- get plain text response from several text inputs using LangChain
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+from langchain_core.output_parsers import StrOutputParser
+
+prompt_template = ChatPromptTemplate.from_template("process this text: {input}")
+
+llm = ChatOllama(model="llama3.1")
+
+chain = prompt_template | llm | StrOutputParser()
+
+prompt_values = [
+    {"input": "Apple Inc. is a multinational technology company headquartered in Cupertino, "
+            "California that designs, manufactures, and markets consumer electronics, "
+            "computer software, and online services."},
+    {"input": "Google is a multinational technology company headquartered in Cupertino, "
+            "California that designs, manufactures, and markets consumer electronics, "
+            "computer software, and online services."},
+]
+
+result = chain.batch(prompt_values)
+print(result) # you get a list with the two plain text outputs
+```
+
+- get structured output from several text inputs using LangChain
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+from langchain_core.output_parsers import StrOutputParser
+from pydantic import BaseModel, Field
+
+class CompanyInfo(BaseModel):
+    cie_description: str = Field(description="Description of the company")
+    cie_symbol: str = Field(description="Symbol of the company")
+    industry: str = Field(description="Industry of the company")
+    sector: str = Field(description="Sector of the company")
+
+prompt_template = ChatPromptTemplate.from_template("process this text: {input}")
+
+llm = ChatOllama(model="llama3.1", temperature=0)
+structured_llm = llm.with_structured_output(CompanyInfo)
+
+chain = prompt_template | structured_llm
+
+prompt_values = [
+    {"input": "Apple Inc. is a multinational technology company headquartered in Cupertino, "
+            "California that designs, manufactures, and markets consumer electronics, "
+            "computer software, and online services."},
+    {"input": "Google is a multinational technology company headquartered in Cupertino, "
+            "California that designs, manufactures, and markets consumer electronics, "
+            "computer software, and online services."},
+]
+
+result = chain.batch(prompt_values)
+print(result) # you get a list with the two structured outputs
+```
+
